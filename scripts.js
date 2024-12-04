@@ -80,6 +80,38 @@ document.addEventListener("DOMContentLoaded", function () {
             this.textContent = "Ir al Hogar";
         }
     });
+   
+    // Agregar control de activación/desactivación de marcadores
+    L.Control.MarkersToggle = L.Control.extend({
+        onAdd: function () {
+            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+            container.style.backgroundColor = 'white';
+            container.style.padding = '5px';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = true;
+            checkbox.style.marginRight = '5px';
+
+            const label = document.createElement('label');
+            label.textContent = 'Mostrar Marcadores';
+
+            checkbox.addEventListener('change', function () {
+                if (checkbox.checked) {
+                    map.addLayer(markersLayer);
+                } else {
+                    map.removeLayer(markersLayer);
+                }
+            });
+
+            container.appendChild(checkbox);
+            container.appendChild(label);
+
+            return container;
+        }
+    });
+
+    map.addControl(new L.Control.MarkersToggle({ position: 'topright' }));
 
     async function fetchData(endpoint) {
         try {
