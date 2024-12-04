@@ -1,6 +1,5 @@
 const API_URL = "https://dashboard-udec-la.onrender.com/api"; // URL del proxy en Render
 
-
 // Mapear los códigos de edificios y pisos a nombres descriptivos
 const edificioMap = {
     edificio_biblioteca: "Edificio Biblioteca",
@@ -22,27 +21,8 @@ const pisoMap = {
     techo: "Techumbre/Techo"
 };
 
-// Crear capa de marcadores
-let markersLayer; // Declarar la capa aquí
-
 document.addEventListener("DOMContentLoaded", function () {
-    // Botones para formularios
-    const formAlertasButton = document.getElementById("form-alertas");
-    const formInfraestructuraButton = document.getElementById("form-infraestructura");
-
-    // Enlace al formulario de alertas
-    formAlertasButton.addEventListener("click", () => {
-        window.open("https://ee.kobotoolbox.org/oYdZ5qee", "_blank");
-    });
-
-    // Enlace al formulario de infraestructura
-    formInfraestructuraButton.addEventListener("click", () => {
-        window.open("https://ee.kobotoolbox.org/j6iuSYjL", "_blank");
-    });
-
-});
-
-document.addEventListener("DOMContentLoaded", function () {
+    // Crear el mapa
     const map = L.map("map", {
         center: [-37.471968972752805, -72.3451831406545],
         zoom: 18,
@@ -67,53 +47,40 @@ document.addEventListener("DOMContentLoaded", function () {
     // Agregar control de capas al mapa
     L.control.layers(tileLayers).addTo(map);
 
-    const locations = {
-        campus: { center: [-37.471968972752805, -72.3451831406545], zoom: 18 },
-        hogar: { center: [-37.46598658196461, -72.34338809526261], zoom: 20 },
+    // Crear grupo de capas para marcadores
+    const markersLayer = L.layerGroup().addTo(map);
+
+    // Control personalizado con checkbox para marcadores
+    const checkboxControl = L.control({ position: "topright" });
+
+    checkboxControl.onAdd = function () {
+        const container = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
+        container.style.backgroundColor = "white";
+        container.style.padding = "5px";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = true;
+        checkbox.style.marginRight = "5px";
+
+        const label = document.createElement("label");
+        label.textContent = "Mostrar Marcadores";
+
+        checkbox.addEventListener("change", function () {
+            if (checkbox.checked) {
+                map.addLayer(markersLayer);
+            } else {
+                map.removeLayer(markersLayer);
+            }
+        });
+
+        container.appendChild(checkbox);
+        container.appendChild(label);
+
+        return container;
     };
 
-    document.getElementById("toggle-location").addEventListener("click", function () {
-        const currentCenter = map.getCenter();
-        if (currentCenter.lat === locations.campus.center[0] && currentCenter.lng === locations.campus.center[1]) {
-            map.setView(locations.hogar.center, locations.hogar.zoom);
-            this.textContent = "Ir al Campus";
-        } else {
-            map.setView(locations.campus.center, locations.campus.zoom);
-            this.textContent = "Ir al Hogar";
-        }
-    });
-   
-     // Agregar control de activación/desactivación de marcadores
-    L.Control.MarkersToggle = L.Control.extend({
-        onAdd: function () {
-            const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-            container.style.backgroundColor = 'white';
-            container.style.padding = '5px';
-
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = true;
-            checkbox.style.marginRight = '5px';
-
-            const label = document.createElement('label');
-            label.textContent = 'Mostrar Marcadores';
-
-            checkbox.addEventListener('change', function () {
-                if (checkbox.checked) {
-                    map.addLayer(markersLayer);
-                } else {
-                    map.removeLayer(markersLayer);
-                }
-            });
-
-            container.appendChild(checkbox);
-            container.appendChild(label);
-
-            return container;
-        }
-    });
-
-    map.addControl(new L.Control.MarkersToggle({ position: 'topright' }));
+    checkboxControl.addTo(map);
 
     async function fetchData(endpoint) {
         try {
@@ -130,33 +97,28 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderTable(data, tableId, columns) {
         const tableBody = document.querySelector(`#${tableId} tbody`);
         tableBody.innerHTML = "";
-    
+
         data.forEach((item) => {
             const row = document.createElement("tr");
-    
+
             columns.forEach((col) => {
                 const cell = document.createElement("td");
-                let value = item[col] || "-"; // Valor predeterminado
-    
-                // Mapeo específico para edificios
+                let value = item[col] || "-";
+
                 if (col === "edificio") {
                     value = edificioMap[item[col]] || "-";
-                } 
-                // Mapeo específico para pisos
-                else if (col === "piso_campus" || col === "piso_hogar") {
+                } else if (col === "piso_campus" || col === "piso_hogar") {
                     value = pisoMap[item[col]] || "-";
-                } 
-                // Convertir la gravedad a formato de título (Primera letra mayúscula)
-                else if (col === "gravedad") {
+                } else if (col === "gravedad") {
                     value = item[col]
                         ? item[col].charAt(0).toUpperCase() + item[col].slice(1).toLowerCase()
                         : "-";
                 }
-    
+
                 cell.textContent = value;
                 row.appendChild(cell);
             });
-    
+
             tableBody.appendChild(row);
         });
     }
@@ -165,7 +127,8 @@ document.addEventListener("DOMContentLoaded", function () {
         const alertas = await fetchData("alertas");
         const infraestructura = await fetchData("infraestructura");
 
-        // Renderizar marcadores de alertas
+        markersLayer.clearLayers(); // Limpiar marcadores antes de agregar nuevos
+
         alertas.forEach((alerta) => {
             const location = alerta["ubicacion_gps"];
             const gravedad = alerta["gravedad"]?.toLowerCase();
@@ -183,27 +146,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     weight: 1,
                     opacity: 1,
                     fillOpacity: 0.8,
-                }).bindPopup(`
+                });
+
+                marker.bindPopup(`
                     <b>Descripción:</b> ${descripcion}<br>
                     <b>Gravedad:</b> ${gravedad || "No especificada"}
                 `);
 
-                markersLayer.addLayer(marker); // Agregar marcador a la capa
+                markersLayer.addLayer(marker); // Agregar marcador al grupo
             }
         });
 
-        markersLayer.addTo(map); // Agregar la capa al mapa
-        // Renderizar tablas
         renderTable(
             alertas,
             "table-alertas",
-            ["id", "nombre", "gravedad", "ubicacion", "edificio", "piso_campus","piso_hogar", "sala", "descripcion"],
-            true
+            ["id", "nombre", "gravedad", "ubicacion", "edificio", "piso_campus", "piso_hogar", "sala", "descripcion"]
         );
         renderTable(
             infraestructura,
             "table-infraestructura",
-            ["id", "nombre", "ubicacion", "edificio", "piso_campus","piso_hogar", "sala", "descripcion"]
+            ["id", "nombre", "ubicacion", "edificio", "piso_campus", "piso_hogar", "sala", "descripcion"]
         );
     }
 
