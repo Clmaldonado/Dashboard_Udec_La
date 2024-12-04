@@ -1,4 +1,3 @@
-const API_URL = "http://localhost:3000/api"; // URL del proxy para acceder a los datos
 const API_URL = "https://dashboard-udec-la.onrender.com/api"; // URL del proxy en Render
 
 
