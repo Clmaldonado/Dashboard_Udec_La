@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
    
-    // Agregar control de activación/desactivación de marcadores
+     // Agregar control de activación/desactivación de marcadores
     L.Control.MarkersToggle = L.Control.extend({
         onAdd: function () {
             const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
@@ -181,15 +181,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     weight: 1,
                     opacity: 1,
                     fillOpacity: 0.8,
-                }).addTo(map);
-
-                marker.bindPopup(`
+                }).bindPopup(`
                     <b>Descripción:</b> ${descripcion}<br>
                     <b>Gravedad:</b> ${gravedad || "No especificada"}
                 `);
+
+                markersLayer.addLayer(marker); // Agregar marcador a la capa
             }
         });
 
+        markersLayer.addTo(map); // Agregar la capa al mapa
         // Renderizar tablas
         renderTable(
             alertas,
