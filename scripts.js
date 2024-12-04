@@ -46,22 +46,52 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Agregar control de capas al mapa
     L.control.layers(tileLayers).addTo(map);
-    
+
+
+// Control personalizado para seleccionar ubicación
+
     const locations = {
         campus: { center: [-37.471968972752805, -72.3451831406545], zoom: 18 },
         hogar: { center: [-37.46598658196461, -72.34338809526261], zoom: 20 },
     };
+    
+    const locationControl = L.control({ position: "topright" });
 
-    document.getElementById("toggle-location").addEventListener("click", function () {
-        const currentCenter = map.getCenter();
-        if (currentCenter.lat === locations.campus.center[0] && currentCenter.lng === locations.campus.center[1]) {
-            map.setView(locations.hogar.center, locations.hogar.zoom);
-            this.textContent = "Ir al Campus";
-        } else {
-            map.setView(locations.campus.center, locations.campus.zoom);
-            this.textContent = "Ir al Hogar";
-        }
-    });
+    locationControl.onAdd = function () {
+        const container = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
+        container.style.backgroundColor = "white";
+        container.style.padding = "5px";
+
+        const select = document.createElement("select");
+        select.style.padding = "5px";
+        select.style.border = "1px solid #ccc";
+
+        // Opciones del selector
+        const options = [
+            { value: "campus", label: "Ir al Campus" },
+            { value: "hogar", label: "Ir al Hogar" }
+        ];
+
+        options.forEach((option) => {
+            const opt = document.createElement("option");
+            opt.value = option.value;
+            opt.textContent = option.label;
+            select.appendChild(opt);
+        });
+
+        // Evento para cambiar la ubicación al seleccionar una opción
+        select.addEventListener("change", function () {
+            const location = locations[select.value];
+            if (location) {
+                map.setView(location.center, location.zoom);
+            }
+        });
+
+        container.appendChild(select);
+        return container;
+    };
+
+    locationControl.addTo(map);
     
     // Crear grupo de capas para marcadores
     const markersLayer = L.layerGroup().addTo(map);
