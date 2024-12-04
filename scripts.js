@@ -46,7 +46,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Agregar control de capas al mapa
     L.control.layers(tileLayers).addTo(map);
+    
+    const locations = {
+        campus: { center: [-37.471968972752805, -72.3451831406545], zoom: 18 },
+        hogar: { center: [-37.46598658196461, -72.34338809526261], zoom: 20 },
+    };
 
+    document.getElementById("toggle-location").addEventListener("click", function () {
+        const currentCenter = map.getCenter();
+        if (currentCenter.lat === locations.campus.center[0] && currentCenter.lng === locations.campus.center[1]) {
+            map.setView(locations.hogar.center, locations.hogar.zoom);
+            this.textContent = "Ir al Campus";
+        } else {
+            map.setView(locations.campus.center, locations.campus.zoom);
+            this.textContent = "Ir al Hogar";
+        }
+    });
+    
     // Crear grupo de capas para marcadores
     const markersLayer = L.layerGroup().addTo(map);
 
