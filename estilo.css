@@ -64,19 +64,7 @@ h2, h3 {
 #tables-section tbody tr:nth-child(even) {
     background-color: #f2f2f2;
 }
-.location-btn {
-    background-color: #003366;
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-}
 
-.location-btn:hover {
-    background-color: #0055cc;
-}
 footer {
     margin-top: 20px;
     text-align: center;
