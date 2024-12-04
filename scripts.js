@@ -22,6 +22,9 @@ const pisoMap = {
     techo: "Techumbre/Techo"
 };
 
+// Crear capa de marcadores
+let markersLayer; // Declarar la capa aquí
+
 document.addEventListener("DOMContentLoaded", function () {
     // Botones para formularios
     const formAlertasButton = document.getElementById("form-alertas");
@@ -37,7 +40,6 @@ document.addEventListener("DOMContentLoaded", function () {
         window.open("https://ee.kobotoolbox.org/j6iuSYjL", "_blank");
     });
 
-    // Resto del código ya existente...
 });
 
 document.addEventListener("DOMContentLoaded", function () {
