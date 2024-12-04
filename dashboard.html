@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGIS para Gestión de Infraestructura y Alertas</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="estilo.css" />
+</head>
+<body>
+    <header>
+        <h1>WebGIS para Gestión de Infraestructura y Alertas</h1>
+    </header>
+    
+    <main>
+
+         <div style="margin-bottom: 10px; text-align: center;">
+            <button id="form-alertas" class="form-btn">Formulario de Alertas</button>
+            <button id="form-infraestructura" class="form-btn">Formulario de Infraestructura</button>
+        </div>
+        
+        <div style="margin-bottom: 10px; text-align: center;">
+            <button id="toggle-location" class="location-btn">Ir al Hogar</button>
+        </div>
+
+        <section id="map-section">
+            <h2>Mapa General</h2>
+            <div id="map" style="width: 100%; height: 400px; border: 1px solid black;"></div>
+        </section>
+
+        <section id="tables-section">
+            <h2>Tablas de Datos</h2>
+            <h3>Alertas</h3>
+            <table id="table-alertas">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo de Infraestructura</th>
+                        <th>Gravedad</th>
+                        <th>Ubicación</th>
+                        <th>Edificio</th>
+                        <th>Piso Campus</th>
+                        <th>Piso Hogar</th>
+                        <th>Sala</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <h3>Infraestructura</h3>
+            <table id="table-infraestructura">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tipo de Infraestructura</th>
+                        <th>Ubicación</th>
+                        <th>Edificio</th>
+                        <th>Piso Campus</th>
+                        <th>Piso Hogar</th>
+                        <th>Sala</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        <footer>
+            <p>&copy; 2024 Campus Los Ángeles. Todos los derechos reservados.</p>
+        </footer>
+    </main>
+
+    <!-- Cargar librerías -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="scripts.js"></script>
+</body>
+</html>
