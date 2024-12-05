@@ -2,7 +2,6 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const path = require('path');
-const multer = require("multer");
 const nodemailer = require('nodemailer'); // Para enviar correos electrónicos
 
 const app = express();
@@ -29,36 +28,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname))); // Sirve archivos estáticos como dashboard.html
 
-// Configuración de multer para manejar la carga de archivos
-const upload = multer({ dest: "uploads/" }); // Carpeta temporal donde se almacenan los archivos subidos
-
-// **Endpoint para subir archivos**
-app.post("/api/upload", upload.single("file"), (req, res) => {
-    const file = req.file; // Archivo recibido
-
-    // Verificar si el archivo fue recibido
-    if (!file) {
-        return res.status(400).send("No se proporcionó ningún archivo.");
-    }
-
-    // Determinar el tipo de archivo
-    const extension = path.extname(file.originalname).toLowerCase();
-    if (extension === ".geojson" || file.mimetype === "application/json") {
-        // Procesar GeoJSON
-        const filePath = `/uploads/${file.filename}.geojson`;
-        res.json({ success: true, url: filePath }); // Respuesta al cliente con la URL del archivo
-    } else if (extension === ".png" || file.mimetype === "image/png") {
-        // Procesar PNG
-        const filePath = `/uploads/${file.filename}.png`;
-        res.json({ success: true, url: filePath }); // Respuesta al cliente con la URL del archivo
-    } else {
-        // Si el archivo no es GeoJSON o PNG, devolver error
-        res.status(400).send("Formato de archivo no soportado. Solo se permite GeoJSON o PNG.");
-    }
-});
-
-// Servir los archivos subidos como recursos estáticos
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // **Endpoint para obtener datos de alertas**
 app.get('/api/alertas', async (req, res) => {
