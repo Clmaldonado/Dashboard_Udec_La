@@ -2,7 +2,6 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const path = require('path');
-const path = require('multer');
 const nodemailer = require('nodemailer'); // Para enviar correos electrónicos
 
 const app = express();
