@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const path = require('path');
+const multer = require("multer");
 const nodemailer = require('nodemailer'); // Para enviar correos electrónicos
 
 const app = express();
@@ -61,6 +62,35 @@ app.get('/api/infraestructura', async (req, res) => {
         res.status(error.response?.status || 500).send('Error al procesar datos de infraestructura.');
     }
 });
+
+// Configuración de almacenamiento para cargar archivos
+const upload = multer({ dest: "uploads/" });
+
+// Endpoint para cargar archivos GeoJSON o PNG
+app.post("/api/upload", upload.single("file"), (req, res) => {
+    const file = req.file;
+
+    if (!file) {
+        return res.status(400).send("No se proporcionó ningún archivo.");
+    }
+
+    const extension = path.extname(file.originalname).toLowerCase();
+    if (extension === ".geojson" || file.mimetype === "application/json") {
+        // Archivos GeoJSON
+        const filePath = `/uploads/${file.filename}.geojson`;
+        res.json({ success: true, url: filePath });
+    } else if (extension === ".png" || file.mimetype === "image/png") {
+        // Archivos PNG
+        const filePath = `/uploads/${file.filename}.png`;
+        res.json({ success: true, url: filePath });
+    } else {
+        // Formato no soportado
+        return res.status(400).send("Formato de archivo no soportado. Solo se permiten GeoJSON y PNG.");
+    }
+});
+
+// Servir los archivos subidos como recursos estáticos
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Enviar correos electrónicos a la whitelist
 function sendEmailNotifications(alerts) {
