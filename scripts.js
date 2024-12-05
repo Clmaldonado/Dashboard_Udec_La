@@ -199,42 +199,66 @@ document.addEventListener("DOMContentLoaded", function () {
         addLayerToMap(layer, name);
     }
 
-    function addRasterToMap(url, name = "Raster TIFF") {
-        const layer = L.tileLayer(url, { opacity: 0.7 });
-        addLayerToMap(layer, name);
+   document.getElementById("upload-button").addEventListener("click", async () => {
+    const fileInput = document.getElementById("file");
+    if (fileInput.files.length === 0) {
+        alert("Por favor, selecciona un archivo PNG.");
+        return;
     }
 
-    document.getElementById("upload-button").addEventListener("click", async () => {
-        const fileInput = document.getElementById("file");
-        if (fileInput.files.length === 0) {
-            alert("Por favor, selecciona un archivo.");
-            return;
-        }
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append("file", file);
 
-        const file = fileInput.files[0];
-        const formData = new FormData();
-        formData.append("file", file);
+    try {
+        const response = await fetch(`${API_URL}/upload`, {
+            method: "POST",
+            body: formData,
+        });
 
-        try {
-            const response = await fetch(`${API_URL}/upload`, {
-                method: "POST",
-                body: formData,
-            });
+        if (!response.ok) throw new Error("Error al cargar el archivo.");
 
-            if (!response.ok) throw new Error("Error al cargar el archivo.");
+        const data = await response.json();
+        alert("Archivo cargado exitosamente.");
+        addRasterToMap(data.url, file.name);
+    } catch (error) {
+        console.error("Error al cargar el archivo:", error);
+        alert("No se pudo cargar el archivo.");
+    }
+});
 
-            const data = await response.json();
-            alert("Archivo cargado exitosamente.");
-            if (file.name.endsWith(".shp")) {
-                addShapefileToMap(data.geojson, file.name);
-            } else if (file.name.endsWith(".tiff")) {
-                addRasterToMap(data.url, file.name);
-            }
-        } catch (error) {
-            console.error("Error al cargar el archivo:", error);
-            alert("No se pudo cargar el archivo.");
-        }
+// Función para agregar capas raster (PNGs) al mapa
+function addRasterToMap(url, name = "Imagen PNG") {
+    const layer = L.tileLayer(url, { opacity: 0.7 });
+    addLayerToMap(layer, name);
+}
+
+// Función para agregar capas al control dinámico
+function addLayerToMap(layer, name) {
+    const layerId = `layer-${Date.now()}`;
+    loadedLayers.push({ id: layerId, layer });
+
+    layer.addTo(map);
+
+    const layerList = document.getElementById("layer-list");
+    const listItem = document.createElement("li");
+    listItem.setAttribute("data-id", layerId);
+    listItem.innerHTML = `
+        ${name}
+        <div>
+            <button class="remove-layer">Eliminar</button>
+        </div>
+    `;
+
+    listItem.querySelector(".remove-layer").addEventListener("click", () => {
+        map.removeLayer(layer);
+        const index = loadedLayers.findIndex((l) => l.id === layerId);
+        if (index !== -1) loadedLayers.splice(index, 1);
+        layerList.removeChild(listItem);
     });
+
+    layerList.appendChild(listItem);
+}
 
     async function loadMarkersAndTables() {
         const alertas = await fetchData("alertas");
