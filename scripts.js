@@ -67,12 +67,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (botonInfraestructura) {
         botonInfraestructura.addEventListener("click", redireccionarFormularioInfraestructura);
+    } else {
+        console.error("Botón de infraestructura no encontrado.");
     }
 
     if (botonAlertas) {
         botonAlertas.addEventListener("click", redireccionarFormularioAlertas);
+    } else {
+        console.error("Botón de alertas no encontrado.");
     }
 });
+
 
     
 // Control personalizado para seleccionar ubicación
