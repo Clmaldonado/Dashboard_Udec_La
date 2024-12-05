@@ -122,3 +122,48 @@ footer {
 .form-btn:hover {
     background-color: #003d80;
 }
+
+/* Estilo general para los botones */
+.btn {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none; /* Para los enlaces */
+    transition: background-color 0.3s ease;
+}
+
+/* Botón principal (Formulario de Infraestructura) */
+.btn-primary {
+    background-color: #007bff; /* Azul */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3; /* Azul oscuro */
+}
+
+/* Botón secundario (Formulario de Alertas) */
+.btn-secondary {
+    background-color: #6c757d; /* Gris */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268; /* Gris oscuro */
+}
+
+/* Asegurar que los botones tengan un margen adecuado */
+div {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Botones individuales separados */
+.btn {
+    margin: 5px;
+}
+
