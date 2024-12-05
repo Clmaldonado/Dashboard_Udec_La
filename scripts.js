@@ -51,7 +51,87 @@ document.addEventListener("DOMContentLoaded", function () {
     L.control.layers(tileLayers).addTo(map);
 
     const markersLayer = L.layerGroup().addTo(map);
+    
+// Control personalizado para seleccionar ubicación
 
+    const locations = {
+        campus: { center: [-37.471968972752805, -72.3451831406545], zoom: 18 },
+        hogar: { center: [-37.46598658196461, -72.34338809526261], zoom: 20 },
+    };
+    
+    const locationControl = L.control({ position: "topright" });
+
+    locationControl.onAdd = function () {
+        const container = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
+        container.style.backgroundColor = "white";
+        container.style.padding = "5px";
+
+        const select = document.createElement("select");
+        select.style.padding = "5px";
+        select.style.border = "1px solid #ccc";
+
+        // Opciones del selector
+        const options = [
+            { value: "campus", label: "Ir al Campus" },
+            { value: "hogar", label: "Ir al Hogar" }
+        ];
+
+        options.forEach((option) => {
+            const opt = document.createElement("option");
+            opt.value = option.value;
+            opt.textContent = option.label;
+            select.appendChild(opt);
+        });
+
+        // Evento para cambiar la ubicación al seleccionar una opción
+        select.addEventListener("change", function () {
+            const location = locations[select.value];
+            if (location) {
+                map.setView(location.center, location.zoom);
+            }
+        });
+
+        container.appendChild(select);
+        return container;
+    };
+
+    locationControl.addTo(map);
+    
+    // Crear grupo de capas para marcadores
+    const markersLayer = L.layerGroup().addTo(map);
+
+    // Control personalizado con checkbox para marcadores
+    const checkboxControl = L.control({ position: "topright" });
+
+    checkboxControl.onAdd = function () {
+        const container = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
+        container.style.backgroundColor = "white";
+        container.style.padding = "5px";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = true;
+        checkbox.style.marginRight = "5px";
+
+        const label = document.createElement("label");
+        label.textContent = "Mostrar Marcadores";
+
+        checkbox.addEventListener("change", function () {
+            if (checkbox.checked) {
+                map.addLayer(markersLayer);
+            } else {
+                map.removeLayer(markersLayer);
+            }
+        });
+
+        container.appendChild(checkbox);
+        container.appendChild(label);
+
+        return container;
+    };
+
+    checkboxControl.addTo(map);
+    
     async function fetchData(endpoint) {
         try {
             const response = await fetch(`${API_URL}/${endpoint}`);
