@@ -63,31 +63,37 @@ app.get('/api/infraestructura', async (req, res) => {
     }
 });
 
-// Configuración de almacenamiento
-const upload = multer({ dest: "uploads/" });
+// Configuración de multer para manejar la carga de archivos
+const upload = multer({ dest: "uploads/" }); // Carpeta temporal donde se almacenan los archivos subidos
 
-// Endpoint para cargar archivos
+// Endpoint POST para subir archivos
 app.post("/api/upload", upload.single("file"), (req, res) => {
-    const file = req.file;
+    const file = req.file; // Archivo recibido
 
+    // Verificar si el archivo fue recibido
     if (!file) {
         return res.status(400).send("No se proporcionó ningún archivo.");
     }
 
+    // Determinar el tipo de archivo
     const extension = path.extname(file.originalname).toLowerCase();
     if (extension === ".geojson" || file.mimetype === "application/json") {
+        // Procesar GeoJSON
         const filePath = `/uploads/${file.filename}.geojson`;
-        res.json({ success: true, url: filePath });
+        res.json({ success: true, url: filePath }); // Respuesta al cliente con la URL del archivo
     } else if (extension === ".png" || file.mimetype === "image/png") {
+        // Procesar PNG
         const filePath = `/uploads/${file.filename}.png`;
-        res.json({ success: true, url: filePath });
+        res.json({ success: true, url: filePath }); // Respuesta al cliente con la URL del archivo
     } else {
+        // Si el archivo no es GeoJSON o PNG, devolver error
         res.status(400).send("Formato de archivo no soportado. Solo se permite GeoJSON o PNG.");
     }
 });
 
-// Servir archivos subidos como recursos estáticos
+// Servir los archivos subidos como recursos estáticos
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 
 
 // Enviar correos electrónicos a la whitelist
