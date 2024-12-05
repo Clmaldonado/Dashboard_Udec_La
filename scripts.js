@@ -1,6 +1,5 @@
 const API_URL = "https://dashboard-udec-la.onrender.com/api"; // URL del proxy en Render
 
-// Mapear los códigos de edificios y pisos a nombres descriptivos
 const edificioMap = {
     edificio_biblioteca: "Edificio Biblioteca",
     edificio_gimnasio: "Edificio Gimnasio",
@@ -11,129 +10,53 @@ const edificioMap = {
     edificio_salas_taller: "Edificio Salas Taller Enrique Molina",
     edificio_asuntos: "Edificio Asuntos Estudiantiles",
     edificio_casino: "Casino",
-    edificio_bano_bodega: "Baño y Bodega Taller"
+    edificio_bano_bodega: "Baño y Bodega Taller",
 };
 
 const pisoMap = {
     piso_1: "Piso 1",
     piso_2: "Piso 2",
     piso_3: "Piso 3",
-    techo: "Techumbre/Techo"
+    techo: "Techumbre/Techo",
 };
 
+// Variables globales para las capas cargadas
+const loadedLayers = [];
+let layerCounter = 0;
+
+// Inicializar el mapa
 document.addEventListener("DOMContentLoaded", function () {
-    // Crear el mapa
     const map = L.map("map", {
         center: [-37.471968972752805, -72.3451831406545],
         zoom: 18,
     });
 
     const tileLayers = {
-        "OpenStreetMap": L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        OpenStreetMap: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 19,
             minZoom: 16,
         }),
-        "Esri World Imagery": L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
-            attribution: '&copy; <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics',
-            maxZoom: 18,
-            minZoom: 16,
-        }),
+        EsriWorldImagery: L.tileLayer(
+            "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            {
+                attribution: '&copy; <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics',
+                maxZoom: 18,
+                minZoom: 16,
+            }
+        ),
     };
 
-    // Agregar la capa inicial al mapa
-    tileLayers["OpenStreetMap"].addTo(map);
-
-    // Agregar control de capas al mapa
+    tileLayers.OpenStreetMap.addTo(map);
     L.control.layers(tileLayers).addTo(map);
 
-
-// Control personalizado para seleccionar ubicación
-
-    const locations = {
-        campus: { center: [-37.471968972752805, -72.3451831406545], zoom: 18 },
-        hogar: { center: [-37.46598658196461, -72.34338809526261], zoom: 20 },
-    };
-    
-    const locationControl = L.control({ position: "topright" });
-
-    locationControl.onAdd = function () {
-        const container = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
-        container.style.backgroundColor = "white";
-        container.style.padding = "5px";
-
-        const select = document.createElement("select");
-        select.style.padding = "5px";
-        select.style.border = "1px solid #ccc";
-
-        // Opciones del selector
-        const options = [
-            { value: "campus", label: "Ir al Campus" },
-            { value: "hogar", label: "Ir al Hogar" }
-        ];
-
-        options.forEach((option) => {
-            const opt = document.createElement("option");
-            opt.value = option.value;
-            opt.textContent = option.label;
-            select.appendChild(opt);
-        });
-
-        // Evento para cambiar la ubicación al seleccionar una opción
-        select.addEventListener("change", function () {
-            const location = locations[select.value];
-            if (location) {
-                map.setView(location.center, location.zoom);
-            }
-        });
-
-        container.appendChild(select);
-        return container;
-    };
-
-    locationControl.addTo(map);
-    
-    // Crear grupo de capas para marcadores
     const markersLayer = L.layerGroup().addTo(map);
-
-    // Control personalizado con checkbox para marcadores
-    const checkboxControl = L.control({ position: "topright" });
-
-    checkboxControl.onAdd = function () {
-        const container = L.DomUtil.create("div", "leaflet-bar leaflet-control leaflet-control-custom");
-        container.style.backgroundColor = "white";
-        container.style.padding = "5px";
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = true;
-        checkbox.style.marginRight = "5px";
-
-        const label = document.createElement("label");
-        label.textContent = "Mostrar Marcadores";
-
-        checkbox.addEventListener("change", function () {
-            if (checkbox.checked) {
-                map.addLayer(markersLayer);
-            } else {
-                map.removeLayer(markersLayer);
-            }
-        });
-
-        container.appendChild(checkbox);
-        container.appendChild(label);
-
-        return container;
-    };
-
-    checkboxControl.addTo(map);
 
     async function fetchData(endpoint) {
         try {
             const response = await fetch(`${API_URL}/${endpoint}`);
             if (!response.ok) throw new Error(`Error al cargar ${endpoint}: ${response.statusText}`);
-            const data = await response.json();
-            return data.results || [];
+            return (await response.json()).results || [];
         } catch (error) {
             console.error(`Error al cargar ${endpoint}:`, error);
             return [];
@@ -143,14 +66,11 @@ document.addEventListener("DOMContentLoaded", function () {
     function renderTable(data, tableId, columns) {
         const tableBody = document.querySelector(`#${tableId} tbody`);
         tableBody.innerHTML = "";
-
         data.forEach((item) => {
             const row = document.createElement("tr");
-
             columns.forEach((col) => {
                 const cell = document.createElement("td");
                 let value = item[col] || "-";
-
                 if (col === "edificio") {
                     value = edificioMap[item[col]] || "-";
                 } else if (col === "piso_campus" || col === "piso_hogar") {
@@ -160,20 +80,88 @@ document.addEventListener("DOMContentLoaded", function () {
                         ? item[col].charAt(0).toUpperCase() + item[col].slice(1).toLowerCase()
                         : "-";
                 }
-
                 cell.textContent = value;
                 row.appendChild(cell);
             });
-
             tableBody.appendChild(row);
         });
     }
 
+    function addLayerToMap(layer, name) {
+        const layerId = `layer-${layerCounter++}`;
+        loadedLayers.push({ id: layerId, layer });
+        layer.addTo(map);
+
+        const layerList = document.getElementById("layer-list");
+        const listItem = document.createElement("li");
+        listItem.setAttribute("data-id", layerId);
+        listItem.innerHTML = `
+            ${name}
+            <div>
+                <button class="remove-layer">Eliminar</button>
+            </div>
+        `;
+
+        listItem.querySelector(".remove-layer").addEventListener("click", () => {
+            map.removeLayer(layer);
+            loadedLayers.splice(
+                loadedLayers.findIndex((l) => l.id === layerId),
+                1
+            );
+            layerList.removeChild(listItem);
+        });
+
+        layerList.appendChild(listItem);
+    }
+
+    function addShapefileToMap(geojson, name = "Shapefile") {
+        const layer = L.geoJSON(geojson, {
+            style: { color: "blue", weight: 2 },
+        });
+        addLayerToMap(layer, name);
+    }
+
+    function addRasterToMap(url, name = "Raster TIFF") {
+        const layer = L.tileLayer(url, { opacity: 0.7 });
+        addLayerToMap(layer, name);
+    }
+
+    document.getElementById("upload-button").addEventListener("click", async () => {
+        const fileInput = document.getElementById("file");
+        if (fileInput.files.length === 0) {
+            alert("Por favor, selecciona un archivo.");
+            return;
+        }
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch(`${API_URL}/upload`, {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) throw new Error("Error al cargar el archivo.");
+
+            const data = await response.json();
+            alert("Archivo cargado exitosamente.");
+            if (file.name.endsWith(".shp")) {
+                addShapefileToMap(data.geojson, file.name);
+            } else if (file.name.endsWith(".tiff")) {
+                addRasterToMap(data.url, file.name);
+            }
+        } catch (error) {
+            console.error("Error al cargar el archivo:", error);
+            alert("No se pudo cargar el archivo.");
+        }
+    });
+
     async function loadMarkersAndTables() {
         const alertas = await fetchData("alertas");
         const infraestructura = await fetchData("infraestructura");
-
-        markersLayer.clearLayers(); // Limpiar marcadores antes de agregar nuevos
+        markersLayer.clearLayers();
 
         alertas.forEach((alerta) => {
             const location = alerta["ubicacion_gps"];
@@ -199,20 +187,31 @@ document.addEventListener("DOMContentLoaded", function () {
                     <b>Gravedad:</b> ${gravedad || "No especificada"}
                 `);
 
-                markersLayer.addLayer(marker); // Agregar marcador al grupo
+                markersLayer.addLayer(marker);
             }
         });
 
-        renderTable(
-            alertas,
-            "table-alertas",
-            ["id", "nombre", "gravedad", "ubicacion", "edificio", "piso_campus", "piso_hogar", "sala", "descripcion"]
-        );
-        renderTable(
-            infraestructura,
-            "table-infraestructura",
-            ["id", "nombre", "ubicacion", "edificio", "piso_campus", "piso_hogar", "sala", "descripcion"]
-        );
+        renderTable(alertas, "table-alertas", [
+            "id",
+            "nombre",
+            "gravedad",
+            "ubicacion",
+            "edificio",
+            "piso_campus",
+            "piso_hogar",
+            "sala",
+            "descripcion",
+        ]);
+        renderTable(infraestructura, "table-infraestructura", [
+            "id",
+            "nombre",
+            "ubicacion",
+            "edificio",
+            "piso_campus",
+            "piso_hogar",
+            "sala",
+            "descripcion",
+        ]);
     }
 
     loadMarkersAndTables();
