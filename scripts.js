@@ -202,7 +202,7 @@ document.addEventListener("DOMContentLoaded", function () {
  document.getElementById("upload-button").addEventListener("click", async () => {
     const fileInput = document.getElementById("file");
     if (fileInput.files.length === 0) {
-        alert("Por favor, selecciona un archivo GeoJSON o PNG.");
+        alert("Por favor, selecciona un archivo.");
         return;
     }
 
