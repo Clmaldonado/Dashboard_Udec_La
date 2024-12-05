@@ -50,8 +50,6 @@ document.addEventListener("DOMContentLoaded", function () {
     tileLayers.OpenStreetMap.addTo(map);
     L.control.layers(tileLayers).addTo(map);
 
-    const markersLayer = L.layerGroup().addTo(map);
-    
 // Control personalizado para seleccionar ubicación
 
     const locations = {
