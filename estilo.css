@@ -134,36 +134,31 @@ footer {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    text-decoration: none; /* Para los enlaces */
+    text-decoration: none; /* Evitar subrayado */
     transition: background-color 0.3s ease;
 }
 
-/* Botón principal (Formulario de Infraestructura) */
+/* Estilo para el botón del formulario de infraestructura */
 .btn-primary {
     background-color: #007bff; /* Azul */
 }
 
 .btn-primary:hover {
-    background-color: #0056b3; /* Azul oscuro */
+    background-color: #0056b3; /* Azul más oscuro */
 }
 
-/* Botón secundario (Formulario de Alertas) */
+/* Estilo para el botón del formulario de alertas */
 .btn-secondary {
     background-color: #6c757d; /* Gris */
 }
 
 .btn-secondary:hover {
-    background-color: #5a6268; /* Gris oscuro */
+    background-color: #5a6268; /* Gris más oscuro */
 }
 
-/* Asegurar que los botones tengan un margen adecuado */
-div {
-    text-align: center;
-    margin-top: 20px;
-}
-
-/* Botones individuales separados */
+/* Ajuste de márgenes entre los botones */
 .btn {
     margin: 5px;
 }
+
 
