@@ -27,9 +27,13 @@ let layerCounter = 0;
 // Inicializar el mapa
 document.addEventListener("DOMContentLoaded", function () {
     const map = L.map("map", {
-        center: [-37.471968972752805, -72.3451831406545],
-        zoom: 18,
-    });
+            center: [-37.471968972752805, -72.3451831406545], // Coordenadas del Campus Los Ángeles
+            zoom: 20, // Nivel de zoom inicial
+            scrollWheelZoom: false, // Desactiva el zoom con la rueda del ratón
+            doubleClickZoom: false, // Desactiva el zoom con doble clic
+            dragging: false,        // Desactiva el arrastre del mapa
+            zoomControl: false      // Oculta los botones de zoom
+        });
 
     const tileLayers = {
         OpenStreetMap: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
