@@ -50,6 +50,31 @@ document.addEventListener("DOMContentLoaded", function () {
     tileLayers.OpenStreetMap.addTo(map);
     L.control.layers(tileLayers).addTo(map);
 
+// Función para redirigir al formulario de infraestructura
+const redireccionarFormularioInfraestructura = () => {
+    window.open("https://ee.kobotoolbox.org/j6iuSYjL", "_blank");
+};
+
+// Función para redirigir al formulario de alertas
+const redireccionarFormularioAlertas = () => {
+    window.open("https://ee.kobotoolbox.org/oYdZ5qee", "_blank");
+};
+
+// Asociar las funciones a los botones al cargar el DOM
+document.addEventListener("DOMContentLoaded", () => {
+    const botonInfraestructura = document.querySelector("#btn-formulario-infraestructura");
+    const botonAlertas = document.querySelector("#btn-formulario-alertas");
+
+    if (botonInfraestructura) {
+        botonInfraestructura.addEventListener("click", redireccionarFormularioInfraestructura);
+    }
+
+    if (botonAlertas) {
+        botonAlertas.addEventListener("click", redireccionarFormularioAlertas);
+    }
+});
+
+    
 // Control personalizado para seleccionar ubicación
 
     const locations = {
