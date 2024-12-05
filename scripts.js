@@ -199,10 +199,10 @@ document.addEventListener("DOMContentLoaded", function () {
         addLayerToMap(layer, name);
     }
 
-  document.getElementById("upload-button").addEventListener("click", async () => {
+ document.getElementById("upload-button").addEventListener("click", async () => {
     const fileInput = document.getElementById("file");
     if (fileInput.files.length === 0) {
-        alert("Por favor, selecciona un archivo GeoJSON.");
+        alert("Por favor, selecciona un archivo GeoJSON o PNG.");
         return;
     }
 
@@ -219,15 +219,19 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!response.ok) throw new Error("Error al cargar el archivo.");
 
         const data = await response.json();
-        alert("Archivo GeoJSON cargado exitosamente.");
-        addGeoJSONToMap(data.url, file.name);
+        alert("Archivo cargado exitosamente.");
+
+        if (file.name.endsWith(".geojson")) {
+            addGeoJSONToMap(data.url, file.name);
+        } else if (file.name.endsWith(".png")) {
+            addRasterToMap(data.url, file.name);
+        }
     } catch (error) {
         console.error("Error al cargar el archivo:", error);
         alert("No se pudo cargar el archivo.");
     }
 });
 
-// Función para agregar GeoJSON al mapa
 function addGeoJSONToMap(url, name = "Capa GeoJSON") {
     fetch(url)
         .then((response) => response.json())
@@ -251,6 +255,10 @@ function addGeoJSONToMap(url, name = "Capa GeoJSON") {
             console.error("Error al cargar GeoJSON:", error);
             alert("No se pudo cargar el archivo GeoJSON.");
         });
+}
+function addRasterToMap(url, name = "Imagen PNG") {
+    const layer = L.tileLayer(url, { opacity: 0.7 });
+    addLayerToMap(layer, name);
 }
 
 // Función para agregar capas al control dinámico
